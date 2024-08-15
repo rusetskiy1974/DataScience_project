@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "datascience-project"
+version = "0.1.0"
+description = ""
+authors = ["SergRusetskiy1974 <sergrus1974@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.112.0"
+uvicorn = {extras = ["standard"], version = "^0.30.6"}
+sqlalchemy = "^2.0.32"
+psycopg2 = "^2.9.9"
+alembic = "^1.13.2"
+
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.1"
+ruff = "^0.6.0"
+pre-commit = "^3.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
