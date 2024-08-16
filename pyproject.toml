@@ -23,9 +23,9 @@ kiwisolver = "1.4.5"
 ignore_missing_imports = true
 
 [tool.poetry.group.dev.dependencies]
-mypy = "^1.11.1"
 ruff = "^0.6.0"
 pre-commit = "^3.8.0"
+mypy = "^1.11.1"
 
 [build-system]
 requires = ["poetry-core"]
