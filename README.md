@@ -1,4 +1,5 @@
 # Running the application
 
-docker-compose up --build
-docker-compose up 
+```bash
+    docker-compose up --build
+    docker-compose up 
