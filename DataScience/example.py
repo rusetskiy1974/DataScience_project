@@ -9,7 +9,7 @@ def main():
     detector = base_detector.LicensePlateDetector()
 
     # Завантажуємо зображення з диску
-    image_path = "data/car4.jpg"
+    image_path = "data/bmv.jpg"
     image = cv2.imread(image_path)  # Завантажуємо зображення
 
     # Перевіряємо, чи зображення було завантажено успішно
