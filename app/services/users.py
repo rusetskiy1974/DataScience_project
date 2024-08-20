@@ -2,11 +2,10 @@ from fastapi import HTTPException, status
 
 from app.schemas.users import UserSchemaAdd, UserResponse
 from app.utils.unitofwork import IUnitOfWork
-from app.utils.dependencies import UOWDep
 
 
 class UsersService:
-    async def add_user(self, uow: UOWDep, user: UserSchemaAdd):
+    async def add_user(self, uow: IUnitOfWork, user: UserSchemaAdd):
         user_dict = user.model_dump()
         async with uow:
             if await uow.users.find_one_or_none(email=user_dict["email"]):
