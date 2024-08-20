@@ -15,7 +15,7 @@ from app.models.users import User
 
 class AuthService:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-    SECRET_KEY = settings.SECRET_KEY_JWT
+    SECRET_KEY = settings.SECRET_KEY
     ALGORITHM = settings.ALGORITHM
 
     token_auth_scheme = HTTPBearer()
