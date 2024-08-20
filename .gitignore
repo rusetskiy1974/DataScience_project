@@ -58,7 +58,7 @@ test_results/
 .mypy_cache/
 .dmypy.json
 dmypy.json
-
+mypy.ini
 # Pylint
 .pylint.d/
 
