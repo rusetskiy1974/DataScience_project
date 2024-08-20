@@ -23,6 +23,8 @@ asyncpg = "^0.29.0"
 pydantic = "^2.8.2"
 notebook = "^7.2.1"
 h5py = "^3.11.0"
+pydantic = {extras = ["email"], version = "^2.8.2"}
+email-validator = "^2.2.0"
 
 [tool.mypy]
 ignore_missing_imports = true
