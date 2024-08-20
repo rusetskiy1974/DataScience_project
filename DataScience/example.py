@@ -7,7 +7,7 @@ from app.services.license_plate_detector_base import AutoDetector
 
 
 def main():
-    image_path = "data/photo1.jpg"
+    image_path = "data/bmv_.png"
     # Створюємо екземпляр класу LicensePlateDetector
     auto_detector = AutoDetector()
     if auto_detector.predict_image(image_path) is False:
@@ -16,7 +16,7 @@ def main():
     segment = CharacterRecognizer()
 
     # Завантажуємо зображення з диску
-    image_path = "data/photo1.jpg"
+    # image_path = "data/photo1.jpg"
     image = cv2.imread(image_path)  # Завантажуємо зображення
     output_list_number = set()
     # Перевіряємо, чи зображення було завантажено успішно
