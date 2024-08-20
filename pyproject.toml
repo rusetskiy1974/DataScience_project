@@ -24,6 +24,8 @@ asyncpg = "^0.29.0"
 h5py = "^3.11.0"
 pydantic = {extras = ["email"], version = "^2.8.2"}
 email-validator = "^2.2.0"
+python-jose = "^3.3.0"
+passlib = "^1.7.4"
 
 [tool.mypy]
 ignore_missing_imports = true
