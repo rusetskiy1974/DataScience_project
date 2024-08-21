@@ -23,7 +23,7 @@ class Detector(ABC):
 
 
 class LicensePlateDetector:
-    def __init__(self, cascade_path="./models/indian_license_plate.xml"):
+    def __init__(self, cascade_path="app/ds_models/indian_license_plate.xml"):
         self.plate_cascade = cv2.CascadeClassifier(cascade_path)
 
     def detect_plate(self, img, text=""):
@@ -142,6 +142,9 @@ class LicensePlateDetector:
         return resized
 
 
+detector = LicensePlateDetector()
+
+
 class AutoDetector:
     def __init__(self):
         # Завантажте TFLite модель
@@ -182,7 +185,7 @@ class AutoDetector:
 # detector_auto.predict_image("./data/photo2.jpg")
 
 class CharacterRecognizer:
-    def __init__(self, model_path="./models/plate_detect_model.tflite"):
+    def __init__(self, model_path="app/ds_models/plate_detect_model.tflite"):
         # Завантажте TFLite модель
         self.interpreter = tf.lite.Interpreter(model_path=model_path)
         self.interpreter.allocate_tensors()  # Викликайте allocate_tensors тут
@@ -235,3 +238,5 @@ class CharacterRecognizer:
         plate_number = ''.join(output)
 
         return plate_number
+
+recognizer = CharacterRecognizer()
