@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+from typing import List, Optional
 
-from sqlalchemy import RowMapping, delete, func, insert, select, update
+from sqlalchemy import RowMapping, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -11,7 +11,9 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def find_all(self, skip: Optional[int], limit: Optional[int], **filter_by) -> List[RowMapping]:
+    async def find_all(
+        self, skip: Optional[int], limit: Optional[int], **filter_by
+    ) -> List[RowMapping]:
         raise NotImplementedError
 
     @abstractmethod
@@ -26,10 +28,10 @@ class AbstractRepository(ABC):
     async def edit_one(self, id: int, data: dict, **filter_by) -> RowMapping:
         raise NotImplementedError
 
-    # @abstractmethod
-    # async def delete_one(self, id: int) -> RowMapping:
-    #     raise NotImplementedError
-    #
+    @abstractmethod
+    async def delete_one(self, id: int) -> RowMapping:
+        raise NotImplementedError
+
     # @abstractmethod
     # async def delete_many(self, **filters) -> None:
     #     raise NotImplementedError
@@ -51,7 +53,9 @@ class SQLAlchemyRepository(AbstractRepository):
         return res.scalar_one()
 
     async def edit_one(self, id: int, data: dict) -> int:
-        stmt = update(self.model).values(**data).filter_by(id=id).returning(self.model.id)
+        stmt = (
+            update(self.model).values(**data).filter_by(id=id).returning(self.model.id)
+        )
         res = await self.session.execute(stmt)
         return res.scalar_one()
 
