@@ -3,6 +3,7 @@ import math
 from fastapi import HTTPException, status
 from app.models.parking import Parking
 from app.models.users import User
+from app.schemas.parking import ParkingResponse
 from app.utils.unitofwork import UnitOfWork
 from app.core.config import settings
 
@@ -85,4 +86,14 @@ class ParkingService:
     async def get_parkings(uow: UnitOfWork, active_only: bool = False) -> list[Parking]:
         async with uow:
             parkings = await uow.parkings.find_all_parkings(active_only=active_only)
+            return parkings
+
+    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[ParkingResponse]:
+        async with uow:
+            parkings = await uow.parkings.find_all(owner_id=owner_id)
+            return parkings
+
+    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[Parking]:
+        async with uow:
+            parkings = await uow.parkings.find_by_owner_id(owner_id)
             return parkings

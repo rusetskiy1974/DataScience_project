@@ -1,4 +1,6 @@
 from fastapi import HTTPException, status
+
+from app.models import Car
 from app.utils.unitofwork import UnitOfWork
 from app.schemas.cars import CarSchemaAdd, CarSchemaUpdate, CarResponse
 
@@ -55,3 +57,8 @@ class CarsService:
                 )
             await uow.cars.delete_one(id=car_id)
             return car
+
+    async def get_cars_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[Car]:
+        async with uow:
+            cars = await uow.cars.find_by_owner_id(owner_id)
+            return cars

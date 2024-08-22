@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, field_validator
 from pydantic_core.core_schema import ValidationInfo
 
+from app.schemas.cars import CarResponse
 from app.services.auth import auth_service
 
 
@@ -43,6 +44,14 @@ class UserResponse(BaseModel):
     is_admin: bool
     is_active: bool
     balance: float
+
+    class Config:
+        from_attributes = True
+
+
+class UserWithCarsResponse(BaseModel):
+    user: UserResponse
+    cars: list[CarResponse]
 
     class Config:
         from_attributes = True
