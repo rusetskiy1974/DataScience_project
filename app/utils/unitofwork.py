@@ -1,32 +1,34 @@
 from abc import ABC, abstractmethod
-from typing import Type
 
 from app.db.database import async_session
+from app.repositories.cars import CarsRepository
+from app.repositories.parking import ParkingRepository
 from app.repositories.users import UsersRepository
 
 
+class AuthRepository:
+    pass
+
+
 class IUnitOfWork(ABC):
-    users: Type[UsersRepository]
+    users: UsersRepository
+    cars: CarsRepository
+    parking: ParkingRepository
 
     @abstractmethod
-    def __init__(self):
-        ...
+    def __init__(self): ...
 
     @abstractmethod
-    async def __aenter__(self):
-        ...
+    async def __aenter__(self): ...
 
     @abstractmethod
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        ...
+    async def __aexit__(self, exc_type, exc_value, traceback): ...
 
     @abstractmethod
-    async def commit(self):
-        ...
+    async def commit(self): ...
 
     @abstractmethod
-    async def rollback(self):
-        ...
+    async def rollback(self): ...
 
 
 class UnitOfWork(IUnitOfWork):
@@ -37,6 +39,8 @@ class UnitOfWork(IUnitOfWork):
         self.session = self.session_factory()
 
         self.users = UsersRepository(self.session)
+        self.cars = CarsRepository(self.session)
+        self.parkings = ParkingRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):

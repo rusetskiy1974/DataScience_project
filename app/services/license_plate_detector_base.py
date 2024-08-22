@@ -148,7 +148,7 @@ detector = LicensePlateDetector()
 class AutoDetector:
     def __init__(self):
         # Завантажте TFLite модель
-        self.interpreter = tf.lite.Interpreter(model_path="./models/auto_detect_model.tflite")
+        self.interpreter = tf.lite.Interpreter(model_path="./models/plate_detect_model_new.tflite")
         self.interpreter.allocate_tensors()  # Викликайте allocate_tensors тут
 
         # Отримайте деталі входу та виходу
