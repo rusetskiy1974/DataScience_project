@@ -16,3 +16,4 @@ class User(Base):
     balance: Mapped[float] = mapped_column(default=0)
 
     cars = relationship("Car", back_populates="owner", cascade="all, delete-orphan")
+    parkings = relationship("Parking", back_populates="owner")
