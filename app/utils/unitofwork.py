@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 
 from app.db.database import async_session
+from app.repositories.cars import CarsRepository
+from app.repositories.parking import ParkingRepository
 from app.repositories.users import UsersRepository
 
 
@@ -10,6 +12,8 @@ class AuthRepository:
 
 class IUnitOfWork(ABC):
     users: UsersRepository
+    cars: CarsRepository
+    parking: ParkingRepository
 
     @abstractmethod
     def __init__(self): ...
@@ -35,6 +39,8 @@ class UnitOfWork(IUnitOfWork):
         self.session = self.session_factory()
 
         self.users = UsersRepository(self.session)
+        self.cars = CarsRepository(self.session)
+        self.parkings = ParkingRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):

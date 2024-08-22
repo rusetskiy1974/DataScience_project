@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     POSTGRES_PORT: int
     SECRET_KEY: str
     ALGORITHM: str
+    PARKING_HOURLY_RATE: int = 20
 
     class Config:
         env_file = ".env"
