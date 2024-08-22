@@ -15,7 +15,6 @@ class CarSchemaAdd(BaseModel):
 class CarSchemaUpdate(BaseModel):
     brand: Optional[str] = None
     model: Optional[str] = None
-    license_plate: Optional[str] = None
 
     class Config:
         from_attributes = True
