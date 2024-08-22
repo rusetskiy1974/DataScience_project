@@ -1,5 +1,5 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 
@@ -14,3 +14,5 @@ class User(Base):
     is_admin: Mapped[bool] = mapped_column(default=False)
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     balance: Mapped[float] = mapped_column(default=0)
+
+    cars = relationship("Car", back_populates="owner", cascade="all, delete-orphan")

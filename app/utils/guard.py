@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 
 from app.models import User
+from app.models.cars import Car
 from app.services.auth import auth_service
 
 
@@ -17,6 +18,14 @@ class Guard:
                 detail="Access denied: Administrator privileges required",
             )
         return current_user
+
+    async def is_owner(self, user: User, car: Car):
+        if car.owner_id != user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to perform this action."
+            )
+        return True
 
 
 guard = Guard(auth_service)
