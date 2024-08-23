@@ -1,30 +1,71 @@
-import base64
-
-import cv2
-import numpy as np
-from app.services.license_plate_detector_base import detector, recognizer
 from typing import List
 
 from fastapi import APIRouter, Depends, status, Query, UploadFile, HTTPException, File
 from app.models.users import User
 from app.schemas.parking import ParkingCreate, ParkingResponse
+from app.services.auth import auth_service
 from app.services.parking import ParkingService
 from app.utils.dependencies import UOWDep
 from app.utils.guard import guard
+from app.services.license_plate_detector_base import detector
 
 router = APIRouter(prefix="/parking", tags=["Parking"])
 
 
-@router.post("/detector")
-async def plate_detector(file: UploadFile = File(...)):
+@router.post("/by_detector", response_model=ParkingResponse, status_code=status.HTTP_201_CREATED)
+async def start_parking_by_detector(
+        uow: UOWDep,
+        parking_service: ParkingService = Depends(),
+        current_user: User = Depends(auth_service.get_current_user),
+        file: UploadFile = File(...), ):
     try:
         image = await file.read()
-        img_array = np.frombuffer(image, np.uint8)
-        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-        return detector.load_and_detect(img, "Sample Plate")
+        license_plate_text = detector.load_and_detect(image)
+
     except Exception as e:
         print({str(e)})
-        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+        HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+    # Пошук автомобіля за номером
+    async with uow:
+        car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
+        if not car:
+            raise HTTPException(status_code=404, detail="Car not found.")
+
+    # Перевірка позитивного балансу у користувача
+    guard.positive_balance(current_user, parking_service)
+
+    parking = await parking_service.start_parking(uow, license_plate=license_plate_text.upper())
+
+    return parking
+
+
+@router.put("/complete_by_detector", response_model=ParkingResponse, status_code=status.HTTP_200_OK)
+async def complete_parking_by_detector(
+        uow: UOWDep,
+        parking_service: ParkingService = Depends(),
+        current_user: User = Depends(auth_service.get_current_user),
+        file: UploadFile = File(...),
+):
+    try:
+        image = await file.read()
+        license_plate_text = detector.load_and_detect(image)
+
+    except Exception as e:
+        print({str(e)})
+        HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+
+        # Пошук автомобіля за номером
+    async with uow:
+        car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
+        if not car:
+            raise HTTPException(status_code=404, detail="Car not found.")
+
+        # Перевірка позитивного балансу у користувача
+    guard.positive_balance(current_user, parking_service)
+
+    parking = await parking_service.complete_parking(uow, license_plate=license_plate_text.upper())
+    return parking
 
 
 @router.post("/", response_model=ParkingResponse, status_code=status.HTTP_201_CREATED)

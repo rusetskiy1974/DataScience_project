@@ -5,7 +5,9 @@ __pycache__/
 
 # C extensions
 *.so
+*.jpg
 DataScience/data/
+app/data
 # Distribution / packaging
 .Python
 env/
