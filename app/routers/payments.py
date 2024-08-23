@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status # type: ignore
 from app.schemas.payment import PaymentSchemaAdd, PaymentResponse
 from app.services.payment import PaymentsService
 from app.services.auth import auth_service
+from app.utils.guard import guard
 from app.utils.dependencies import UOWDep
 from app.models.users import User
 
@@ -9,14 +10,14 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 
 
 @router.post("/", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
-async def create_payment(
+async def create_credit_payment(
     payment_data: PaymentSchemaAdd,
     uow: UOWDep,
     payments_service: PaymentsService = Depends(),
-    current_user: User = Depends(auth_service.get_current_user),
+    current_user: User = Depends(guard.is_admin),
 ):
     # Обробка створення нового платежу
-    payment = await payments_service.process_payment(uow, payment_data, current_user.id)
+    payment = await payments_service.process_payment(uow, payment_data)
     return payment
 
 

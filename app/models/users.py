@@ -17,3 +17,4 @@ class User(Base):
 
     cars = relationship("Car", back_populates="owner", cascade="all, delete-orphan")
     parkings = relationship("Parking", back_populates="owner")
+    payment = relationship("Payment", back_populates="user")

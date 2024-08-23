@@ -2,8 +2,11 @@ from datetime import datetime
 import math
 from fastapi import HTTPException, status
 from app.models.parking import Parking
+from app.models.payments import Payment
 from app.models.users import User
 from app.schemas.parking import ParkingResponse
+from app.schemas.payment import PaymentSchemaAdd
+from app.services.payment import PaymentsService
 from app.utils.unitofwork import UnitOfWork
 from app.core.config import settings
 
@@ -51,7 +54,6 @@ class ParkingService:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
                 raise HTTPException(status_code=404, detail="Car not found")
-
             parking = await uow.parkings.find_one_or_none(car_id=car.id, is_active=True)
             if parking is None:
                 raise HTTPException(status_code=404, detail="No active parking found for this car")
@@ -80,6 +82,19 @@ class ParkingService:
 
             await uow.commit()
             await uow.session.refresh(parking)
+            # await uow.session.close()
+
+            payment_dict = PaymentSchemaAdd(
+                user_id=car.owner_id,
+                parking_id=parking.id,
+                amount=parking.cost,
+                transaction_type='debit',
+                payment_date=datetime.now(),
+                description=f'Parking fee for {parking.start_time.strftime("%Y-%m-%d %H:%M:%S")} - {parking.end_time.strftime("%Y-%m-%d %H:%M:%S")}',
+
+            )
+
+            await PaymentsService.process_payment(uow, payment_dict)
             return parking
 
     @staticmethod
