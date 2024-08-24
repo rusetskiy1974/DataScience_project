@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.payments import Payment
-from app.schemas.payment import PaymentSchemaAdd, PaymentResponse
+from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema
 from app.utils.dependencies import UnitOfWork
 from app.models.payments import TransactionType
 
@@ -11,7 +11,7 @@ from app.models.payments import TransactionType
 class PaymentsService:
 
     @staticmethod
-    async def process_payment(uow: UnitOfWork, payment_data: PaymentSchemaAdd) -> PaymentResponse:
+    async def process_payment(uow: UnitOfWork, payment_data: PaymentSchema) -> int:
         async with uow:
             user = await uow.users.find_one_or_none(id=payment_data.user_id)
             if not user:
@@ -23,17 +23,15 @@ class PaymentsService:
                     parking = await uow.parkings.find_one_or_none(id=payment_data.parking_id)
                     if not parking:
                         raise HTTPException(status_code=404, detail="Parking not found")
-                    payment = await uow.payments.add_one(payment_dict)
 
                 if payment_data.transaction_type == TransactionType.CREDIT:
-                    payment = await uow.payments.add_one(payment_dict)
                     user.balance += payment_data.amount
-
                     uow.session.add(user)
                     await uow.commit()
-                    await uow.session.refresh(payment)
 
-                return payment
+                payment_id = await uow.payments.add_one(payment_dict)
+
+                return payment_id
 
             except SQLAlchemyError as e:
                 await uow.rollback()
