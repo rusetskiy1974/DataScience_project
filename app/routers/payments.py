@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status  # type: ignore
-from app.schemas.payment import PaymentSchemaAdd, PaymentResponse
+from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema
 from app.services.payment import PaymentsService
 from app.services.auth import auth_service
 from app.utils.guard import guard
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/payments", tags=["Payments"])
 @router.post("/", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
 async def create_credit_payment(
         uow: UOWDep,
-        payment_data: PaymentSchemaAdd = Depends(),
+        payment_data: PaymentSchema = Depends(),
         payments_service: PaymentsService = Depends(),
         current_user: User = Depends(guard.is_admin),
 ):
@@ -21,17 +21,14 @@ async def create_credit_payment(
     return payment
 
 
-router.get("/", response_model=list[PaymentResponse])
-
-
+@router.get("/", response_model=list[PaymentResponse])
 async def get_payments(
         uow: UOWDep,
         payments_service: PaymentsService = Depends(),
-        current_user: User = Depends(auth_service.get_current_user),
-        successful_only: bool = False,
+        current_user: User = Depends(guard.is_admin),
+
 ):
-    # Получение списка платежей, с возможностью фильтрации только успешных платежей
-    payments = await payments_service.get_payments(uow, successful_only)
+    payments = await payments_service.get_all_payments(uow )
     return payments
 
 

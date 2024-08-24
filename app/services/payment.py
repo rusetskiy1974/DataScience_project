@@ -26,7 +26,6 @@ class PaymentsService:
                     payment = await uow.payments.add_one(payment_dict)
 
                 if payment_data.transaction_type == TransactionType.CREDIT:
-
                     payment = await uow.payments.add_one(payment_dict)
                     user.balance += payment_data.amount
 
@@ -40,16 +39,24 @@ class PaymentsService:
                 await uow.rollback()
                 raise HTTPException(status_code=500, detail=f"An error occurred while processing the payment: {str(e)}")
 
+    @staticmethod
+    async def get_all_payments(uow: UnitOfWork) -> list[PaymentResponse]:
+        async with uow:
+            payments = await uow.payments.find_all()
 
-@staticmethod
-async def get_payments(uow: UnitOfWork, successful_only: bool = False) -> list[PaymentResponse]:
-    async with uow:
-        # Отримання списку всіх платежів, з можливістю фільтрації успішних платежів
-        payments = await uow.payments.find_all_payments(successful_only=successful_only)
+            # Повернення списку PaymentResponse
+            return list(payments)
 
-        # Повернення списку PaymentResponse
-        return [
-            PaymentResponse(
+    @staticmethod
+    async def get_payment_by_id(uow: UnitOfWork, payment_id: int) -> PaymentResponse:
+        async with uow:
+            # Отримання платежу за його ID, якщо не знайдено - виклик виключення
+            payment = await uow.payments.find_by_id(payment_id)
+            if not payment:
+                raise HTTPException(status_code=404, detail="Payment not found")
+
+            # Повернення PaymentResponse
+            return PaymentResponse(
                 id=payment.id,
                 user_id=payment.user_id,
                 parking_id=payment.parking_id,
@@ -59,40 +66,16 @@ async def get_payments(uow: UnitOfWork, successful_only: bool = False) -> list[P
                 is_successful=payment.is_successful,
                 payment_date=payment.payment_date
             )
-            for payment in payments
-        ]
 
-
-@staticmethod
-async def get_payment_by_id(uow: UnitOfWork, payment_id: int) -> PaymentResponse:
-    async with uow:
-        # Отримання платежу за його ID, якщо не знайдено - виклик виключення
-        payment = await uow.payments.find_by_id(payment_id)
-        if not payment:
-            raise HTTPException(status_code=404, detail="Payment not found")
-
-        # Повернення PaymentResponse
-        return PaymentResponse(
-            id=payment.id,
-            user_id=payment.user_id,
-            parking_id=payment.parking_id,
-            amount=payment.amount,
-            currency=payment.currency,
-            payment_method=payment.payment_method,
-            is_successful=payment.is_successful,
-            payment_date=payment.payment_date
-        )
-
-
-@staticmethod
-async def delete_payment(uow: UnitOfWork, payment_id: int) -> None:
-    async with uow:
-        # Отримання платежу для видалення
-        payment = await PaymentsService.get_payment_by_id(uow, payment_id)
-        try:
-            await uow.session.delete(payment)
-            await uow.commit()
-        except SQLAlchemyError:
-            # Відкат транзакції у випадку помилки
-            await uow.rollback()
-            raise HTTPException(status_code=500, detail="An error occurred while deleting the payment")
+    @staticmethod
+    async def delete_payment(uow: UnitOfWork, payment_id: int) -> None:
+        async with uow:
+            # Отримання платежу для видалення
+            payment = await PaymentsService.get_payment_by_id(uow, payment_id)
+            try:
+                await uow.session.delete(payment)
+                await uow.commit()
+            except SQLAlchemyError:
+                # Відкат транзакції у випадку помилки
+                await uow.rollback()
+                raise HTTPException(status_code=500, detail="An error occurred while deleting the payment")
