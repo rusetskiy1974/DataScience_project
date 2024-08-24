@@ -29,7 +29,7 @@ async def get_payments(
         current_user: User = Depends(guard.is_admin),
         successful_only: bool = False,
 ):
-    # Получение списка платежей, с возможностью фильтрации только успешных платежей
+    # Отримання списку всіх успішних платежів
     payments = await payments_service.get_payments(uow, successful_only)
     return payments
 
@@ -56,6 +56,7 @@ async def get_payments_by_license_plate(
     # Отримання інформації про всі платежі відносно конкретного автомобіля
     payments = await payments_service.get_payments_by_license_plate(uow, license_plate)
     return payments
+
 
 @router.delete("/{payment_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_payment(
