@@ -16,7 +16,7 @@ router = APIRouter(prefix="/parking", tags=["Parking"])
 async def start_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
-        current_user: User = Depends(auth_service.get_current_user),
+        # current_user: User = Depends(auth_service.get_current_user),
         file: UploadFile = File(...), ):
     try:
         image = await file.read()
@@ -31,6 +31,9 @@ async def start_parking_by_detector(
         car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
         if not car:
             raise HTTPException(status_code=404, detail="Car not found.")
+        current_user = await uow.users.find_one(id=car.owner_id)
+        if current_user is None:
+            raise HTTPException(status_code=404, detail="Owner of the car not found")
 
     # Перевірка позитивного балансу у користувача
     guard.positive_balance(current_user, parking_service)
@@ -44,7 +47,7 @@ async def start_parking_by_detector(
 async def complete_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
-        current_user: User = Depends(auth_service.get_current_user),
+        # current_user: User = Depends(auth_service.get_current_user),
         file: UploadFile = File(...),
 ):
     try:
@@ -60,6 +63,9 @@ async def complete_parking_by_detector(
         car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
         if not car:
             raise HTTPException(status_code=404, detail="Car not found.")
+        current_user = await uow.users.find_one(id=car.owner_id)
+        if current_user is None:
+            raise HTTPException(status_code=404, detail="Owner of the car not found")
 
         # Перевірка позитивного балансу у користувача
     guard.positive_balance(current_user, parking_service)
