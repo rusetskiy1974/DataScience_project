@@ -5,6 +5,7 @@ from app.routers.users import router as router_users
 from app.routers.cars import router as router_cars
 from app.routers.parking import router as router_parking
 from app.routers.me import router as router_me
+from app.routers.payments import router as router_payment
 
 all_routers = [
     router_auth,
@@ -15,4 +16,5 @@ all_routers = [
     router_checkers,
     router_parking,  # Add more routers here as needed.
 
+    router_payment
 ]

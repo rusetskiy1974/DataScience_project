@@ -17,3 +17,4 @@ class Parking(Base):
 
     car = relationship("Car", back_populates="parkings")
     owner = relationship("User")
+    payment = relationship("Payment", back_populates="parking")
