@@ -32,3 +32,15 @@ async def login(
     db_user = await auth_service.authenticate_user(uow, user.email, user.password)
     access_token = await auth_service.create_access_token({"sub": db_user.email})
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/protected", response_model=UserSchema)
+async def protected_route(
+    current_user: str = Depends(get_current_user),
+    uow: UOWDep,
+    user_service: UsersService = Depends(),
+):
+    user = await user_service.get_user_by_email(uow, current_user)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user

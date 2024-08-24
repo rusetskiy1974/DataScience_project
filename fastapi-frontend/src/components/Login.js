@@ -14,7 +14,7 @@ function Login() {
       const response = await axios.post('http://localhost:8000/auth/login', { email, password });
       console.log('Login response:', response.data);
       // Handle successful login
-      const { access_token, token_type: _token_type } = response.data;
+      const { access_token } = response.data;
       localStorage.setItem('token', access_token);
       console.log('Token stored in localStorage');
       // Redirect or update UI here

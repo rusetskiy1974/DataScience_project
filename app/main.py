@@ -6,12 +6,12 @@ from app.routers.all import all_routers
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React's default port
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["http://localhost:3000"],  # React's default port
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
 )
 
 for router in all_routers:
