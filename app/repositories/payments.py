@@ -17,3 +17,9 @@ class PaymentRepository(SQLAlchemyRepository):
         stmt = select(self.model).where(self.model.parking_id == parking_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+
+    async def add_one(self, payment_dict: dict) -> Payment:
+        new_payment = Payment(**payment_dict)
+        self.session.add(new_payment)
+        await self.session.commit()
+        return new_payment

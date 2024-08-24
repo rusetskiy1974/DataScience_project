@@ -24,9 +24,8 @@ class PaymentsService:
                     if not parking:
                         raise HTTPException(status_code=404, detail="Parking not found")
                     payment = await uow.payments.add_one(payment_dict)
-                    return payment
 
-                elif payment_data.transaction_type == "credit":
+                if payment_data.transaction_type == TransactionType.CREDIT:
 
                     payment = await uow.payments.add_one(payment_dict)
                     user.balance += payment_data.amount
@@ -35,7 +34,7 @@ class PaymentsService:
                     await uow.commit()
                     await uow.session.refresh(payment)
 
-                    return payment
+                return payment
 
             except SQLAlchemyError as e:
                 await uow.rollback()
