@@ -82,7 +82,6 @@ class ParkingService:
 
             await uow.commit()
             await uow.session.refresh(parking)
-            # await uow.session.close()
 
             payment_dict = PaymentSchemaAdd(
                 user_id=car.owner_id,

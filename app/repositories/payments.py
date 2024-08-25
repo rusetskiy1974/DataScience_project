@@ -14,7 +14,7 @@ import csv
 class PaymentRepository(SQLAlchemyRepository):
     model = Payment
 
-    async def find_by_user_id(self, user_id: int, successful_only: bool = False) -> Sequence[Payment]:
+    async def find_by_user_id(self, user_id: int) -> Sequence[Payment]:
         stmt = select(self.model).where(self.model.user_id == user_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
@@ -29,10 +29,8 @@ class PaymentRepository(SQLAlchemyRepository):
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def find_all_payments(self, successful_only: bool = False) -> Sequence[Payment]:
+    async def find_all_payments(self) -> Sequence[Payment]:
         stmt = select(self.model)
-        if successful_only:
-            stmt = stmt.where(self.model.transaction_type == Payment.TransactionType.CREDIT)
         result = await self.session.execute(stmt)
         return result.scalars().all()
      
@@ -81,3 +79,4 @@ class PaymentRepository(SQLAlchemyRepository):
         self.session.add(new_payment)
         await self.session.commit()
         return new_payment
+
