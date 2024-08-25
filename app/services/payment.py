@@ -1,9 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.payments import Payment
-from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema
+from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema, PaymentPeriod
 from app.utils.dependencies import UnitOfWork
 from app.models.payments import TransactionType
 
@@ -38,34 +38,26 @@ class PaymentsService:
                 raise HTTPException(status_code=500, detail=f"An error occurred while processing the payment: {str(e)}")
 
     @staticmethod
-    async def get_all_payments(uow: UnitOfWork) -> list[PaymentResponse]:
+    async def get_all_payments(uow: UnitOfWork, period: PaymentPeriod) -> list[PaymentResponse]:
         async with uow:
-            payments = await uow.payments.find_all()
+            # Отримання списку платежів за вказаний період
+            if period == PaymentPeriod.ALL:
+                payments = await uow.payments.find_all()
+            else:
+                start_date = datetime.now()
+                if period == PaymentPeriod.WEEK:
+                    start_date -= timedelta(weeks=1)
+                elif period == PaymentPeriod.MONTH:
+                    start_date -= timedelta(days=30)
+                elif period == PaymentPeriod.YEAR:
+                    start_date -= timedelta(days=365)
+
+                payments = await uow.payments.find_by_period(start_date)
 
             # Повернення списку PaymentResponse
             return list(payments)
 
-    @staticmethod
-    async def get_payments(uow: UnitOfWork) -> list[PaymentResponse]:
-        async with uow:
-            # Отримання списку всіх платежів, з можливістю фільтрації успішних платежів
-            payments = await uow.payments.find_all_payments()
-
-            # Повернення списку PaymentResponse
-            return [
-                PaymentResponse(
-                id=payment.id,
-                user_id=payment.user_id,
-                parking_id=payment.parking_id,
-                amount=payment.amount,
-                transaction_type=payment.transaction_type,
-                description=payment.description,
-                payment_date=payment.payment_date
-            )
-                for payment in payments
-            ]
-
-
+    
     @staticmethod
     async def get_payment_by_id(uow: UnitOfWork, payment_id: int) -> PaymentResponse:
         async with uow:
