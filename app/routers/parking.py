@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, status, Query, UploadFile, HTTPException, File
 from app.models.users import User
-from app.schemas.parking import ParkingCreate, ParkingResponse
+from app.schemas.parking import ParkingCreate, ParkingResponse, ParkingPeriod
 from app.services.parking import ParkingService
 from app.utils.dependencies import UOWDep
 from app.utils.guard import guard
@@ -68,8 +68,9 @@ async def get_parkings(
         active_only: bool = Query(False, description="Filter active parkings only"),
         parking_service: ParkingService = Depends(),
         current_user: User = Depends(guard.is_admin),
+        period: ParkingPeriod = Query(ParkingPeriod.ALL, description="Фільтр по періоду паркінгів"),
 ):
-    parkings = await parking_service.get_parkings(uow, active_only=active_only)
+    parkings = await parking_service.get_parkings(uow, period, active_only=active_only)
     return parkings
 
 

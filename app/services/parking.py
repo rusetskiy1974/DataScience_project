@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import math
 from fastapi import HTTPException, status
 from app.models.parking import Parking
 from app.models.payments import Payment
 from app.models.users import User
-from app.schemas.parking import ParkingResponse
+from app.schemas.parking import ParkingResponse, ParkingPeriod
 from app.schemas.payment import PaymentSchemaAdd
 from app.services.payment import PaymentsService
 from app.utils.guard import guard
@@ -23,6 +23,7 @@ class ParkingService:
 
     @staticmethod
     async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:
+        print(license_plate)
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
@@ -101,10 +102,24 @@ class ParkingService:
             return parking
 
     @staticmethod
-    async def get_parkings(uow: UnitOfWork, active_only: bool = False) -> list[Parking]:
+    async def get_parkings(uow: UnitOfWork, period: ParkingPeriod, active_only: bool = False) -> list[Parking]:
         async with uow:
-            parkings = await uow.parkings.find_all_parkings(active_only=active_only)
-            return parkings
+            # Отримання списку паркінгів за вказаний період
+            if period == ParkingPeriod.ALL:
+                parkings = await uow.parkings.find_all_parkings(active_only=active_only)
+            else:
+                start_date = datetime.now()
+                if period == ParkingPeriod.WEEK:
+                    start_date -= timedelta(weeks=1)
+                elif period == ParkingPeriod.MONTH:
+                    start_date -= timedelta(days=30)
+                elif period == ParkingPeriod.YEAR:
+                    start_date -= timedelta(days=365)
+                
+                parkings = await uow.parkings.find_by_period(start_date, active_only=active_only)
+
+            return list(parkings)
+
 
     async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[ParkingResponse]:
         async with uow:
