@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, status  # type: ignore
 
-from app.schemas.payment import PaymentSchemaAdd, PaymentResponse
+from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema
 from app.schemas.parking import ParkingCreate
 
 from app.services.payment import PaymentsService

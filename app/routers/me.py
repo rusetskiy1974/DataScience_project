@@ -43,5 +43,5 @@ async def get_my_payments(
         current_user: User = Depends(auth_service.get_current_user),
         successful_only: bool = False,
 ):
-    payments = await payments_service.get_my_payments(uow, current_user.id, successful_only)
+    payments = await payments_service.get_my_payments(uow, current_user.id)
     return payments

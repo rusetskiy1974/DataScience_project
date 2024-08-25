@@ -14,7 +14,5 @@ all_routers = [
     router_cars,
     router_parking,
     router_checkers,
-    router_parking,  # Add more routers here as needed.
-
     router_payment
 ]
