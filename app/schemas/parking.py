@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel
+from enum import Enum
 
 
 class ParkingCreate(BaseModel):
@@ -18,3 +19,10 @@ class ParkingResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ParkingPeriod(Enum):
+    WEEK = "тиждень"
+    MONTH = "місяць"
+    YEAR = "рік"
+    ALL = "вся історія парковок"

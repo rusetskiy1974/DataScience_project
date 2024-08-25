@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, status  # type: ignore
+from fastapi import APIRouter, Depends, status, Query  # type: ignore
 
-from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema
+from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema, PaymentPeriod
 from app.schemas.parking import ParkingCreate
 
 from app.services.payment import PaymentsService
@@ -29,8 +29,9 @@ async def get_payments(
         uow: UOWDep,
         payments_service: PaymentsService = Depends(),
         current_user: User = Depends(guard.is_admin),
+        period: PaymentPeriod = Query(PaymentPeriod.ALL, description="Фільтр по періоду платежів"),
 ):
-    payments = await payments_service.get_all_payments(uow )
+    payments = await payments_service.get_all_payments(uow, period)
     return payments
 
 

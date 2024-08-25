@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 from app.models.payments import TransactionType
+from enum import Enum
 
 
 class PaymentSchemaAdd(BaseModel):
@@ -37,3 +38,10 @@ class PaymentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PaymentPeriod(Enum):
+    WEEK = "тиждень"
+    MONTH = "місяць"
+    YEAR = "рік"
+    ALL = "вся історія платежів"
