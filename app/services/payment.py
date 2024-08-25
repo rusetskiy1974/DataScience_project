@@ -46,10 +46,31 @@ class PaymentsService:
             return list(payments)
 
     @staticmethod
+    async def get_payments(uow: UnitOfWork) -> list[PaymentResponse]:
+        async with uow:
+            # Отримання списку всіх платежів, з можливістю фільтрації успішних платежів
+            payments = await uow.payments.find_all_payments()
+
+            # Повернення списку PaymentResponse
+            return [
+                PaymentResponse(
+                id=payment.id,
+                user_id=payment.user_id,
+                parking_id=payment.parking_id,
+                amount=payment.amount,
+                transaction_type=payment.transaction_type,
+                description=payment.description,
+                payment_date=payment.payment_date
+            )
+                for payment in payments
+            ]
+
+
+    @staticmethod
     async def get_payment_by_id(uow: UnitOfWork, payment_id: int) -> PaymentResponse:
         async with uow:
             # Отримання платежу за його ID, якщо не знайдено - виклик виключення
-            payment = await uow.payments.find_by_id(payment_id)
+            payment = await uow.payments.find_by_payment_id(payment_id)
             if not payment:
                 raise HTTPException(status_code=404, detail="Payment not found")
 
@@ -59,17 +80,60 @@ class PaymentsService:
                 user_id=payment.user_id,
                 parking_id=payment.parking_id,
                 amount=payment.amount,
-                currency=payment.currency,
-                payment_method=payment.payment_method,
-                is_successful=payment.is_successful,
+                transaction_type=payment.transaction_type,
+                description=payment.description,
                 payment_date=payment.payment_date
             )
+    
+
+    @staticmethod
+    async def get_payments_by_license_plate(uow: UnitOfWork, license_plate: str) -> list[PaymentResponse]:
+        async with uow:
+            # Отримання списку платежів за номером автомобіля
+            payments = await uow.payments.find_by_license_plate(license_plate)
+
+            # Повернення списку PaymentResponse
+            return [
+                PaymentResponse(
+                id=payment.id,
+                user_id=payment.user_id,
+                parking_id=payment.parking_id,
+                amount=payment.amount,
+                transaction_type=payment.transaction_type,
+                description=payment.description,
+                payment_date=payment.payment_date
+            )
+                for payment in payments
+            ]
+
+    
+    @staticmethod
+    async def get_my_payments(uow: UnitOfWork, user_id: int) -> list[PaymentResponse]:
+        async with uow:
+            # Отримання списку платежів користувача, з можливістю фільтрації успішних платежів
+            payments = await uow.payments.find_by_user_id(user_id)
+
+            # Повернення списку PaymentResponse
+            return [
+                PaymentResponse(
+                id=payment.id,
+                user_id=payment.user_id,
+                parking_id=payment.parking_id,
+                amount=payment.amount,
+                transaction_type=payment.transaction_type,
+                description=payment.description,
+                payment_date=payment.payment_date
+            )
+                for payment in payments
+            ]
+
+
 
     @staticmethod
     async def delete_payment(uow: UnitOfWork, payment_id: int) -> None:
         async with uow:
             # Отримання платежу для видалення
-            payment = await PaymentsService.get_payment_by_id(uow, payment_id)
+            payment = await uow.payments.find_by_payment_id(payment_id)
             try:
                 await uow.session.delete(payment)
                 await uow.commit()
