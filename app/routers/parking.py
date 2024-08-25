@@ -16,28 +16,19 @@ async def start_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
         file: UploadFile = File(...), ):
-    async with uow:
+    try:
+        image = await file.read()
+        license_plate_text = detector(image)
 
-        try:
-            image = await file.read()
-            license_plate_text = detector(image)
+    except Exception as e:
+        print({str(e)})
+        raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
 
-        except Exception as e:
-            print({str(e)})
-            raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
+    # guard.positive_balance(current_user, parking_service)
 
-        car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
-        if not car:
-            raise HTTPException(status_code=404, detail="Car not found.")
-        current_user = await uow.users.find_one(id=car.owner_id)
-        if current_user is None:
-            raise HTTPException(status_code=404, detail="Owner of the car not found")
+    parking = await parking_service.start_parking(uow, license_plate=license_plate_text.upper())
 
-        guard.positive_balance(current_user, parking_service)
-
-        parking = await parking_service.start_parking(uow, license_plate=license_plate_text.upper())
-
-        return parking
+    return parking
 
 
 @router.put("/complete_by_detector", response_model=ParkingResponse, status_code=status.HTTP_200_OK)
@@ -46,26 +37,18 @@ async def complete_parking_by_detector(
         parking_service: ParkingService = Depends(),
         file: UploadFile = File(...),
 ):
-    async with uow:
-        try:
-            image = await file.read()
-            license_plate_text = detector(image)
+    try:
+        image = await file.read()
+        license_plate_text = detector(image)
 
-        except Exception as e:
-            print({str(e)})
-            raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
+    except Exception as e:
+        print({str(e)})
+        raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
 
-        car = await uow.cars.find_one_or_none(license_plate=license_plate_text)
-        if not car:
-            raise HTTPException(status_code=404, detail="Car not found.")
-        current_user = await uow.users.find_one(id=car.owner_id)
-        if current_user is None:
-            raise HTTPException(status_code=404, detail="Owner of the car not found")
+    # guard.positive_balance(current_user, parking_service)
 
-        guard.positive_balance(current_user, parking_service)
-
-        parking = await parking_service.complete_parking(uow, license_plate=license_plate_text.upper())
-        return parking
+    parking = await parking_service.complete_parking(uow, license_plate=license_plate_text.upper())
+    return parking
 
 
 @router.post("/", response_model=ParkingResponse, status_code=status.HTTP_201_CREATED)

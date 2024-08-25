@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from app.models import User
 from app.models.cars import Car
 from app.services.auth import auth_service
-from app.services.parking import ParkingService
+# from app.services.parking import ParkingService
 from app.utils.unitofwork import UnitOfWork
 
 
@@ -41,8 +41,8 @@ class Guard:
         return True
 
     @staticmethod
-    def positive_balance(user: User, parking_service: ParkingService) -> None:
-        if user.balance < 0:
+    def positive_balance(user: User, amount: float) -> None:  # parking_service: ParkingService) -> None:
+        if user.balance < amount:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient balance to complete the parking."

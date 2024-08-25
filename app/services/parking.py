@@ -7,6 +7,7 @@ from app.models.users import User
 from app.schemas.parking import ParkingResponse
 from app.schemas.payment import PaymentSchemaAdd
 from app.services.payment import PaymentsService
+from app.utils.guard import guard
 from app.utils.unitofwork import UnitOfWork
 from app.core.config import settings
 
@@ -14,7 +15,7 @@ from app.core.config import settings
 class ParkingService:
 
     @staticmethod
-    async def calculate_cost(parking: Parking) -> float:
+    async def calculate_cost(parking: Parking) -> float | None:
         if parking.end_time:
             duration_hours = math.ceil((parking.end_time - parking.start_time).total_seconds() / 3600)
             return duration_hours * settings.PARKING_HOURLY_RATE
@@ -26,14 +27,17 @@ class ParkingService:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
                 raise HTTPException(status_code=404, detail="Car not found")
+            current_user = await uow.users.find_one(id=car.owner_id)
+            if current_user is None:
+                raise HTTPException(status_code=404, detail="Owner of the car not found")
 
             active_parking = await uow.parkings.find_one_or_none(car_id=car.id, is_active=True)
             if active_parking:
                 raise HTTPException(status_code=400, detail="This car is already parked.")
-
+            guard.positive_balance(current_user, settings.PARKING_HOURLY_RATE)
             parking = Parking(
                 car_id=car.id,
-                owner_id=car.owner_id,
+                owner_id=current_user.id,
                 start_time=datetime.utcnow(),
                 is_active=True,
                 end_time=None,
@@ -68,12 +72,12 @@ class ParkingService:
             duration = math.ceil((parking.end_time - parking.start_time).total_seconds() / 3600)
 
             parking.cost = duration * settings.PARKING_HOURLY_RATE
-
-            if user.balance < parking.cost:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="Insufficient balance to complete the parking. Please top up your account."
-                )
+            guard.positive_balance(user, parking.cost)
+            # if user.balance < parking.cost:
+            #     raise HTTPException(
+            #         status_code=status.HTTP_403_FORBIDDEN,
+            #         detail="Insufficient balance to complete the parking. Please top up your account."
+            #     )
 
             user.balance -= parking.cost
             uow.session.add(user)
