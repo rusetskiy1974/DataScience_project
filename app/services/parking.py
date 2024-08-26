@@ -35,7 +35,7 @@ class ParkingService:
             active_parking = await uow.parkings.find_one_or_none(car_id=car.id, is_active=True)
             if active_parking:
                 raise HTTPException(status_code=400, detail="This car is already parked.")
-            guard.positive_balance(current_user, settings.PARKING_HOURLY_RATE)
+            # guard.positive_balance(current_user, settings.PARKING_HOURLY_RATE)
             parking = Parking(
                 car_id=car.id,
                 owner_id=current_user.id,

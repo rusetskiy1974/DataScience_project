@@ -36,7 +36,7 @@ async def add_car(
     car_data: CarSchemaAdd,
     uow: UOWDep,
     cars_service: CarsService = Depends(),
-    current_user: User = Depends(auth_service.get_current_user),
+    current_user: User = Depends(guard.is_admin),
 ):
     car_id = await cars_service.add_car(uow, car_data, current_user.id)
     return await cars_service.get_car_by_id(uow, car_id)
@@ -48,7 +48,7 @@ async def update_car(
     car_data: CarSchemaUpdate,
     uow: UOWDep,
     cars_service: CarsService = Depends(),
-    current_user: User = Depends(auth_service.get_current_user),
+    current_user: User = Depends(guard.is_admin),
 ):
     car = await cars_service.get_car_by_id(uow, car_id)
     await guard.is_owner(current_user, car)

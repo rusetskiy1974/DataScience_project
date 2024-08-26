@@ -40,7 +40,7 @@ async def complete_parking_by_detector(
     try:
         image = await file.read()
         license_plate_text = detector(image)
-
+        print("license_plate_text= ", license_plate_text)
     except Exception as e:
         print({str(e)})
         raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
