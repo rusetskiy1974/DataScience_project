@@ -11,6 +11,7 @@ class ParkingCreate(BaseModel):
 class ParkingResponse(BaseModel):
     id: conint(ge=1)
     car_id: int
+    license_plate: str
     is_active: bool
     start_time: datetime
     end_time: datetime | None
