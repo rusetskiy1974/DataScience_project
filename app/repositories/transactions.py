@@ -13,4 +13,5 @@ class TransactionRepository(SQLAlchemyRepository):
         stmt = select(self.model).where(self.model.user_id == user_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()
+    
 

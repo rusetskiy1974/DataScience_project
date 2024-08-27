@@ -3,6 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 from app.schemas.transactions import TransactionResponse, TransactionSchemaAdd
 from app.utils.dependencies import UnitOfWork
+from app.repositories.transactions import TransactionRepository
 
 
 class TransactionsService:
@@ -31,25 +32,39 @@ class TransactionsService:
 
             return transactions
 
+
     @staticmethod
-    async def add_transaction(uow: UnitOfWork, transaction_data: TransactionSchemaAdd) -> int:
+    async def add_transaction(uow: UnitOfWork, transaction_data: TransactionSchemaAdd) -> TransactionResponse:
         async with uow:
             transaction_dict = transaction_data.model_dump()
+            transaction_id = await uow.transactions.add_one(transaction_dict)
+            user.balance += transaction_data.amount
+            uow.session.add(user)
+            await uow.commit()
+            await uow.session.refresh(user)
+            return transaction_id
 
-            user = await uow.users.find_one_or_none(id=transaction_data.user_id)
-            if not user:
-                raise HTTPException(status_code=404, detail="User not found")
-            try:
-                transaction_id = await uow.transactions.add_one(transaction_dict)
-                user.balance += transaction_data.amount
-                uow.session.add(user)
-                await uow.commit()
-                await uow.session.refresh(user)
-                return transaction_id
 
-            except SQLAlchemyError as e:
-                uow.session.rollback()
-                raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+    # @staticmethod
+    # async def add_transaction(uow: UnitOfWork, transaction_data: TransactionSchemaAdd) -> int:
+    #     async with uow:
+    #         transaction_dict = transaction_data.model_dump()
+
+    #         user = await uow.users.find_one_or_none(id=transaction_data.user_id)
+    #         if not user:
+    #             raise HTTPException(status_code=404, detail="User not found")
+    #         try:
+    #             transaction_id = await uow.transactions.add_one(transaction_dict)
+    #             user.balance += transaction_data.amount
+    #             uow.session.add(user)
+    #             await uow.commit()
+    #             await uow.session.refresh(user)
+    #             return transaction_id
+
+    #         except SQLAlchemyError as e:
+    #             uow.session.rollback()
+    #             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     @staticmethod
     async def delete_transaction(uow: UnitOfWork, transaction_id: int):

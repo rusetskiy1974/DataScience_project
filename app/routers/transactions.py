@@ -51,7 +51,8 @@ async def add_transaction(
         current_user: User = Depends(auth_service.get_current_user),
 ):
     transaction_id = await transactions_service.add_transaction(uow, transaction_data)
-    return await transactions_service.get_transaction_by_id(uow, transaction_id)
+    return await transactions_service.get_transaction_by_id(uow, transaction_id, current_user)
+#     return await transactions_service.add_transaction(uow, transaction_data)
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)
