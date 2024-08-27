@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 from app.models.payments import TransactionType
 from enum import Enum
 
@@ -17,24 +17,23 @@ class PaymentSchemaAdd(BaseModel):
 
 
 class PaymentSchema(BaseModel):
-    user_id: int
+    car_id: int
+    parking_id: int
     amount: float
-    transaction_type: TransactionType = TransactionType.CREDIT
+    payment_date: datetime = datetime.now()
     description: str | None = None
-    # payment_date: datetime = datetime.now()
 
     class Config:
         from_attributes = True
 
 
 class PaymentResponse(BaseModel):
-    id: int
-    user_id: int
+    id: conint(ge=1)
+    car_id: int
     parking_id: int | None
     amount: float
-    transaction_type: TransactionType
-    description: str | None
     payment_date: datetime = datetime.now()
+    description: str | None
 
     class Config:
         from_attributes = True

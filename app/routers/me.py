@@ -5,8 +5,8 @@ from app.schemas.parking import ParkingResponse
 from app.schemas.payment import PaymentResponse
 from app.services.users import UsersService
 from app.services.cars import CarsService
-from app.services.parking import ParkingService
-from app.services.payment import PaymentsService
+from app.services.parkings import ParkingService
+from app.services.payments import PaymentsService
 from app.utils.dependencies import UOWDep
 from app.utils.guard import guard
 from app.services.auth import auth_service
@@ -26,7 +26,7 @@ async def get_me(
     return {"user": user, "cars": cars}
 
 
-@router.get("/parkings", response_model=list[ParkingResponse], status_code=status.HTTP_200_OK)
+@router.get("/parkings", response_model=dict[str, list[ParkingResponse]], status_code=status.HTTP_200_OK)
 async def get_my_parkings(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
@@ -36,12 +36,11 @@ async def get_my_parkings(
     return parkings
 
 
-@router.get("/payments", response_model=list[PaymentResponse], status_code=status.HTTP_200_OK)
+@router.get("/payments", response_model=dict[str, list[PaymentResponse]], status_code=status.HTTP_200_OK)
 async def get_my_payments(
         uow: UOWDep,
         payments_service: PaymentsService = Depends(),
         current_user: User = Depends(auth_service.get_current_user),
-        successful_only: bool = False,
 ):
     payments = await payments_service.get_my_payments(uow, current_user.id)
     return payments

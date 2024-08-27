@@ -13,9 +13,9 @@ router = APIRouter(prefix="/cars", tags=["Cars"])
 
 @router.get("/", response_model=list[CarResponse])
 async def get_cars(
-    uow: UOWDep,
-    cars_service: CarsService = Depends(),
-    current_user: User = Depends(guard.is_admin),
+        uow: UOWDep,
+        cars_service: CarsService = Depends(),
+        current_user: User = Depends(guard.is_admin),
 ):
     cars = await cars_service.get_cars(uow)
     return cars
@@ -23,32 +23,32 @@ async def get_cars(
 
 @router.get("/{car_id}", response_model=CarResponse, status_code=status.HTTP_200_OK)
 async def get_car(
-    car_id: int,
-    uow: UOWDep,
-    cars_service: CarsService = Depends(),
-    current_user: User = Depends(guard.is_admin),
+        car_id: int,
+        uow: UOWDep,
+        cars_service: CarsService = Depends(),
+        current_user: User = Depends(guard.is_admin),
 ):
     return await cars_service.get_car_by_id(uow, car_id)
 
 
 @router.post("/", response_model=CarResponse, status_code=status.HTTP_201_CREATED)
 async def add_car(
-    car_data: CarSchemaAdd,
-    uow: UOWDep,
-    cars_service: CarsService = Depends(),
-    current_user: User = Depends(guard.is_admin),
+        uow: UOWDep,
+        car_data: CarSchemaAdd,
+        cars_service: CarsService = Depends(),
+        current_user: User = Depends(guard.is_admin),
 ):
-    car_id = await cars_service.add_car(uow, car_data, current_user.id)
+    car_id = await cars_service.add_car(uow, car_data)
     return await cars_service.get_car_by_id(uow, car_id)
 
 
 @router.put("/{car_id}", response_model=CarResponse, status_code=status.HTTP_200_OK)
 async def update_car(
-    car_id: int,
-    car_data: CarSchemaUpdate,
-    uow: UOWDep,
-    cars_service: CarsService = Depends(),
-    current_user: User = Depends(guard.is_admin),
+        car_id: int,
+        car_data: CarSchemaUpdate,
+        uow: UOWDep,
+        cars_service: CarsService = Depends(),
+        current_user: User = Depends(guard.is_admin),
 ):
     car = await cars_service.get_car_by_id(uow, car_id)
     await guard.is_owner(current_user, car)
@@ -57,9 +57,9 @@ async def update_car(
 
 @router.delete("/{car_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_car(
-    car_id: int,
-    uow: UOWDep,
-    cars_service: CarsService = Depends(),
-    current_user: User = Depends(guard.is_admin),
+        car_id: int,
+        uow: UOWDep,
+        cars_service: CarsService = Depends(),
+        current_user: User = Depends(guard.is_admin),
 ):
     await cars_service.delete_car(uow, car_id)

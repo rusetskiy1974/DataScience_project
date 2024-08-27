@@ -1,0 +1,2 @@
+payment_id,car_id,parking_id,amount,payment_date,description
+14,8,28,20.0,2024-08-26T20:30:09.919165,Parking fee for 2024-08-26 20:29:46 - 2024-08-26 20:30:09

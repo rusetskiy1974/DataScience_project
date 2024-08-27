@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, conint
 from pydantic_core.core_schema import ValidationInfo
 
 from app.schemas.cars import CarResponse
@@ -38,7 +38,7 @@ class UserSchemaAdd(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: conint(ge=1)
     name: str
     email: EmailStr
     is_admin: bool

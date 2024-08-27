@@ -1,9 +1,11 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status, Query, UploadFile, HTTPException, File
+
+from app.models import Car
 from app.models.users import User
 from app.schemas.parking import ParkingCreate, ParkingResponse, ParkingPeriod
-from app.services.parking import ParkingService
+from app.services.parkings import ParkingService
 from app.utils.dependencies import UOWDep
 from app.utils.guard import guard
 from app.data_science.detector import detector
@@ -36,6 +38,7 @@ async def complete_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
         file: UploadFile = File(...),
+        # car: Car = Depends(guard.blacklisted),
 ):
     try:
         image = await file.read()
@@ -44,8 +47,6 @@ async def complete_parking_by_detector(
     except Exception as e:
         print({str(e)})
         raise HTTPException(status_code=404, detail=f"Error processing image: {str(e)}")
-
-    # guard.positive_balance(current_user, parking_service)
 
     parking = await parking_service.complete_parking(uow, license_plate=license_plate_text.upper())
     return parking
@@ -57,7 +58,7 @@ async def start_parking(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
         current_user: User = Depends(guard.is_admin),
-):
+        ):
     parking = await parking_service.start_parking(uow, license_plate=parking_data.license_plate)
     return parking
 

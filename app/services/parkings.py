@@ -1,12 +1,9 @@
 from datetime import datetime, timedelta
-import math
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from app.models.parking import Parking
-from app.models.payments import Payment
-from app.models.users import User
 from app.schemas.parking import ParkingResponse, ParkingPeriod
 from app.schemas.payment import PaymentSchemaAdd
-from app.services.payment import PaymentsService
+from app.services.payments import PaymentsService
 from app.utils.guard import guard
 from app.utils.unitofwork import UnitOfWork
 from app.core.config import settings
@@ -15,34 +12,22 @@ from app.core.config import settings
 class ParkingService:
 
     @staticmethod
-    async def calculate_cost(parking: Parking) -> float | None:
-        if parking.end_time:
-            duration_hours = math.ceil((parking.end_time - parking.start_time).total_seconds() / 3600)
-            return duration_hours * settings.PARKING_HOURLY_RATE
-        return None
-
-    @staticmethod
     async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:
         print(license_plate)
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
                 raise HTTPException(status_code=404, detail="Car not found")
-            current_user = await uow.users.find_one(id=car.owner_id)
-            if current_user is None:
-                raise HTTPException(status_code=404, detail="Owner of the car not found")
-
+            await guard.blacklisted(uow, car.id)
             active_parking = await uow.parkings.find_one_or_none(car_id=car.id, is_active=True)
             if active_parking:
                 raise HTTPException(status_code=400, detail="This car is already parked.")
             # guard.positive_balance(current_user, settings.PARKING_HOURLY_RATE)
             parking = Parking(
                 car_id=car.id,
-                owner_id=current_user.id,
                 start_time=datetime.utcnow(),
                 is_active=True,
                 end_time=None,
-                cost=None
             )
 
             uow.session.add(parking)
@@ -59,6 +44,9 @@ class ParkingService:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
                 raise HTTPException(status_code=404, detail="Car not found")
+
+            await guard.blacklisted(uow, car.id)
+
             parking = await uow.parkings.find_one_or_none(car_id=car.id, is_active=True)
             if parking is None:
                 raise HTTPException(status_code=404, detail="No active parking found for this car")
@@ -66,39 +54,16 @@ class ParkingService:
             user = await uow.users.find_one(id=car.owner_id)
             if user is None:
                 raise HTTPException(status_code=404, detail="Owner of the car not found")
-
+            guard.positive_balance(user)
             if parking.end_time is None:
                 parking.end_time = datetime.utcnow()
-
-            duration = math.ceil((parking.end_time - parking.start_time).total_seconds() / 3600)
-
-            parking.cost = duration * settings.PARKING_HOURLY_RATE
-            guard.positive_balance(user, parking.cost)
-            # if user.balance < parking.cost:
-            #     raise HTTPException(
-            #         status_code=status.HTTP_403_FORBIDDEN,
-            #         detail="Insufficient balance to complete the parking. Please top up your account."
-            #     )
-
-            user.balance -= parking.cost
-            uow.session.add(user)
 
             parking.is_active = False
 
             await uow.commit()
             await uow.session.refresh(parking)
 
-            payment_dict = PaymentSchemaAdd(
-                user_id=car.owner_id,
-                parking_id=parking.id,
-                amount=parking.cost,
-                transaction_type='debit',
-                payment_date=datetime.now(),
-                description=f'Parking fee for {parking.start_time.strftime("%Y-%m-%d %H:%M:%S")} - {parking.end_time.strftime("%Y-%m-%d %H:%M:%S")}',
-
-            )
-
-            await PaymentsService.process_payment(uow, payment_dict)
+            await PaymentsService.process_payment(uow, parking.id)
             return parking
 
     @staticmethod
@@ -115,18 +80,22 @@ class ParkingService:
                     start_date -= timedelta(days=30)
                 elif period == ParkingPeriod.YEAR:
                     start_date -= timedelta(days=365)
-                
+
                 parkings = await uow.parkings.find_by_period(start_date, active_only=active_only)
 
             return list(parkings)
 
-
-    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[ParkingResponse]:
+    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> dict[str, list[ParkingResponse]]:
         async with uow:
-            parkings = await uow.parkings.find_all(owner_id=owner_id)
-            return parkings
+            parkings_by_owner = {}
+            cars = await uow.cars.find_by_owner_id(owner_id)
+            for car in cars:
+                parkings = await uow.parkings.find_by_car_id(car.id)
+                parkings_by_owner[car.license_plate] = list(parkings)
+            # parkings = await uow.parkings.find_all(owner_id=owner_id)
+            return parkings_by_owner
 
-    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[Parking]:
-        async with uow:
-            parkings = await uow.parkings.find_by_owner_id(owner_id)
-            return parkings
+    # async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[Parking]:
+    #     async with uow:
+    #         parkings = await uow.parkings.find_by_owner_id(owner_id)
+    #         return parkings
