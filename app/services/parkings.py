@@ -12,8 +12,7 @@ from app.core.config import settings
 class ParkingService:
 
     @staticmethod
-    async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:
-        print(license_plate)
+    async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:        
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
@@ -24,7 +23,7 @@ class ParkingService:
                 raise HTTPException(status_code=400, detail="This car is already parked.")
             # guard.positive_balance(current_user, settings.PARKING_HOURLY_RATE)
             parking = Parking(
-                car_id=car.id,
+                car_id=car.id,                
                 start_time=datetime.utcnow(),
                 is_active=True,
                 end_time=None,
@@ -36,7 +35,15 @@ class ParkingService:
 
             await uow.session.refresh(parking)
 
-            return parking
+            return ParkingResponse(
+                id=parking.id,
+                car_id=parking.car_id,
+                license_plate=license_plate,
+                is_active=parking.is_active,
+                start_time=parking.start_time,
+                end_time=parking.end_time
+            )
+
 
     @staticmethod
     async def complete_parking(uow: UnitOfWork, license_plate: str) -> Parking:
@@ -64,8 +71,15 @@ class ParkingService:
             await uow.session.refresh(parking)
 
             await PaymentsService.process_payment(uow, parking.id)
-            return parking
-
+            return ParkingResponse(
+                id=parking.id,
+                car_id=parking.car_id,
+                license_plate=license_plate,
+                is_active=parking.is_active,
+                start_time=parking.start_time,
+                end_time=parking.end_time
+            )
+            
     @staticmethod
     async def get_parkings(uow: UnitOfWork, period: ParkingPeriod, active_only: bool = False) -> list[Parking]:
         async with uow:
