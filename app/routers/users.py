@@ -32,13 +32,12 @@ async def get_user(
 
 @router.put("/{user_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def update_user(
-    user_id: int,
     user_data: UserSchemaUpdate,
     uow: UOWDep,
     user_service: UsersService = Depends(),
     current_user: User = Depends(auth_service.get_current_user),
 ):
-    return await user_service.update_user(uow, user_id, user_data)
+    return await user_service.update_user(uow, current_user.id, user_data)
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)

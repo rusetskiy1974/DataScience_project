@@ -43,15 +43,27 @@ async def get_transactions_by_user_id(
     return transactions
 
 
-@router.post("/", response_model=TransactionResponse)
+
+@router.post("/", response_model=TransactionResponse, status_code=status.HTTP_201_CREATED)
 async def add_transaction(
         uow: UOWDep,
         transaction_data: TransactionSchemaAdd,
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(auth_service.get_current_user),
 ):
-    transaction_id = await transactions_service.add_transaction(uow, transaction_data)
-    return await transactions_service.get_transaction_by_id(uow, transaction_id)
+    return await transactions_service.add_transaction(uow, amount = transaction_data.amount, user_id = current_user.id)
+
+
+# @router.post("/", response_model=TransactionResponse)
+# async def add_transaction(
+#         uow: UOWDep,
+#         transaction_data: TransactionSchemaAdd,
+#         transactions_service: TransactionsService = Depends(),
+#         current_user: User = Depends(auth_service.get_current_user),
+# ):
+#     transaction_id = await transactions_service.add_transaction(uow, transaction_data)
+#     return await transactions_service.get_transaction_by_id(uow, transaction_id)
+
 
 
 @router.delete("/{transaction_id}", status_code=status.HTTP_204_NO_CONTENT)

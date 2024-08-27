@@ -17,7 +17,8 @@ router = APIRouter(prefix="/parking", tags=["Parking"])
 async def start_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
-        file: UploadFile = File(...), ):
+        file: UploadFile = File(...), 
+        current_user: User = Depends(guard.is_admin),):
     try:
         image = await file.read()
         license_plate_text = detector(image)
@@ -38,6 +39,7 @@ async def complete_parking_by_detector(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
         file: UploadFile = File(...),
+        current_user: User = Depends(guard.is_admin),
         # car: Car = Depends(guard.blacklisted),
 ):
     try:
