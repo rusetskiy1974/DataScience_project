@@ -2,9 +2,12 @@ from abc import ABC, abstractmethod
 
 from app.db.database import async_session
 from app.repositories.cars import CarsRepository
-from app.repositories.parking import ParkingRepository
+from app.repositories.parkings import ParkingRepository
 from app.repositories.users import UsersRepository
 from app.repositories.payments import PaymentRepository
+from app.repositories.rates import RateRepository
+from app.repositories.black_list import BlackListRepository
+from app.repositories.transactions import TransactionRepository
 
 
 class AuthRepository:
@@ -14,8 +17,11 @@ class AuthRepository:
 class IUnitOfWork(ABC):
     users: UsersRepository
     cars: CarsRepository
-    parking: ParkingRepository
+    parkings: ParkingRepository
     payments: PaymentRepository
+    rates: RateRepository
+    black_list: BlackListRepository
+    transactions: TransactionRepository
 
     @abstractmethod
     def __init__(self): ...
@@ -44,6 +50,9 @@ class UnitOfWork(IUnitOfWork):
         self.cars = CarsRepository(self.session)
         self.parkings = ParkingRepository(self.session)
         self.payments = PaymentRepository(self.session)
+        self.rates = RateRepository(self.session)
+        self.black_list = BlackListRepository(self.session)
+        self.transactions = TransactionRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):

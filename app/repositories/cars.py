@@ -2,6 +2,7 @@ from sqlalchemy import select
 from app.utils.repositories import SQLAlchemyRepository
 from app.models.cars import Car
 
+
 class CarsRepository(SQLAlchemyRepository):
     model = Car
 

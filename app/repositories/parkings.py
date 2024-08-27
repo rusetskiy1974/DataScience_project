@@ -23,7 +23,7 @@ class ParkingRepository(SQLAlchemyRepository):
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
-    async def find_by_owner_id(self, owner_id: int) -> list[Parking]:
-        stmt = select(self.model).where(self.model.owner_id == owner_id)
+    async def find_by_car_id(self, car_id: int) -> list[Parking]:
+        stmt = select(self.model).where(self.model.car_id == car_id)
         result = await self.session.execute(stmt)
         return result.scalars().all()

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     PARKING_HOURLY_RATE: int = 20
+    CREDIT_LIMIT: int = 100
 
     class Config:
         env_file = ".env"

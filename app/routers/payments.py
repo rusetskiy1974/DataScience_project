@@ -3,25 +3,13 @@ from fastapi import APIRouter, Depends, status, Query  # type: ignore
 from app.schemas.payment import PaymentSchemaAdd, PaymentResponse, PaymentSchema, PaymentPeriod
 from app.schemas.parking import ParkingCreate
 
-from app.services.payment import PaymentsService
+from app.services.payments import PaymentsService
 from app.services.auth import auth_service
 from app.utils.guard import guard
 from app.utils.dependencies import UOWDep
 from app.models.users import User
 
 router = APIRouter(prefix="/payments", tags=["Payments"])
-
-
-@router.post("/", response_model=PaymentResponse, status_code=status.HTTP_201_CREATED)
-async def create_credit_payment(
-        uow: UOWDep,
-        payment_data: PaymentSchema = Depends(),
-        payments_service: PaymentsService = Depends(),
-        current_user: User = Depends(guard.is_admin),
-):
-    # Обробка створення нового платежу
-    payment = await payments_service.process_payment(uow, payment_data)
-    return payment
 
 
 @router.get("/", response_model=list[PaymentResponse])
@@ -54,7 +42,6 @@ async def get_payments_by_license_plate(
         payments_service: PaymentsService = Depends(),
         current_user: User = Depends(guard.is_admin),
 ):
-    # Отримання інформації про всі платежі відносно конкретного автомобіля
     payments = await payments_service.get_payments_by_license_plate(uow, license_plate)
     return payments
 

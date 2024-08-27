@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, conint
 from enum import Enum
 
 
@@ -9,13 +9,11 @@ class ParkingCreate(BaseModel):
 
 
 class ParkingResponse(BaseModel):
-    id: int
+    id: conint(ge=1)
     car_id: int
-    owner_id: int
     is_active: bool
     start_time: datetime
     end_time: datetime | None
-    cost: float | None
 
     class Config:
         from_attributes = True

@@ -11,6 +11,8 @@ class Car(Base):
     model: Mapped[str]
     license_plate: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    rate_id: Mapped[int] = mapped_column(ForeignKey("rates.id"))
 
     owner = relationship("User", back_populates="cars")
     parkings = relationship("Parking", back_populates="car")
+    rate = relationship("Rate", back_populates="cars", lazy="joined")
