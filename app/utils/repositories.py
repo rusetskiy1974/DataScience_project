@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from sqlalchemy import RowMapping, delete, insert, select, update
+from sqlalchemy import RowMapping, delete, insert, select, update, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -78,3 +78,7 @@ class SQLAlchemyRepository(AbstractRepository):
         stmt = delete(self.model).filter_by(id=id).returning(self.model)
         res = await self.session.execute(stmt)
         return res.scalar_one()
+
+    async def count(self) -> int:
+        result = await self.session.execute(select(func.count()).select_from(self.model))
+        return result.scalar_one()
