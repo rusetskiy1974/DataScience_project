@@ -7,13 +7,13 @@ authors = ["SergRusetskiy1974 <sergrus1974@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.10"
+python = ">=3.10,<3.12"
 numpy = "^1.26.4"
 opencv-python-headless = { version = "^4.9.0.80", platform = "linux" }
 opencv-python = { version = "^4.9.0.80", platform = "win32 || darwin" }
 matplotlib = "^3.8.4"
 tensorflow-io-gcs-filesystem = [
-    { version = "^0.31", markers = "sys_platform == 'win32'" },
+    { version = ">=0.31,<0.32", markers = "sys_platform == 'win32'" },
     { version = "~0.37", markers = "sys_platform == 'linux' or sys_platform == 'darwin'" }
 ]
 tensorflow = [
@@ -43,6 +43,7 @@ email-validator = "^2.2.0"
 python-jose = "^3.3.0"
 passlib = "^1.7.4"
 python-multipart = "^0.0.9"
+sphinx = "^8.0.2"
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -54,6 +55,7 @@ mypy = "^1.11.1"
 black = "^24.8.0"
 isort = "^5.13.2"
 flake8 = "^7.1.1"
+sphinx = "^8.0.2"
 
 
 [build-system]

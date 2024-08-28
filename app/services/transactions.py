@@ -7,8 +7,23 @@ from app.repositories.transactions import TransactionRepository
 
 
 class TransactionsService:
+    """
+    Service class for handling transaction-related operations.
+    """
     @staticmethod
     async def get_all_transactions(uow: UnitOfWork) -> list[TransactionResponse]:
+        """
+        Retrieves all transactions from the database.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+
+        Returns:
+            list[TransactionResponse]: A list of all transactions.
+
+        Raises:
+            HTTPException: If no transactions are found.
+        """
         async with (uow):
             transactions = await uow.transactions.find_all()
             if not transactions:
@@ -18,6 +33,19 @@ class TransactionsService:
 
     @staticmethod
     async def get_transaction_by_id(uow: UnitOfWork, transaction_id: int) -> TransactionResponse:
+        """
+        Retrieves a specific transaction by its ID.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            transaction_id (int): The ID of the transaction to be retrieved.
+
+        Returns:
+            TransactionResponse: The transaction data.
+
+        Raises:
+            HTTPException: If the transaction with the specified ID is not found.
+        """
         async with uow:
             transaction = await uow.transactions.find_one_or_none(id=transaction_id)
             if not transaction:
@@ -27,6 +55,16 @@ class TransactionsService:
 
     @staticmethod
     async def get_transactions_by_user_id(uow: UnitOfWork, user_id: int) -> list[TransactionResponse]:
+        """
+        Retrieves all transactions for a specific user.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            user_id (int): The ID of the user whose transactions are to be retrieved.
+
+        Returns:
+            list[TransactionResponse]: A list of transactions for the specified user.
+        """
         async with uow:
             transactions = await uow.transactions.find_by_user_id(user_id=user_id)
 
@@ -35,6 +73,20 @@ class TransactionsService:
 
     @staticmethod
     async def add_transaction(uow: UnitOfWork, amount: float, user_id: int) -> TransactionResponse:
+        """
+        Adds a new transaction and updates the user's balance.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            amount (float): The amount of the transaction.
+            user_id (int): The ID of the user associated with the transaction.
+
+        Returns:
+            TransactionResponse: The newly created transaction data.
+
+        Raises:
+            HTTPException: If the user is not found, or if there is an error during the transaction creation.
+        """
         async with uow:
             user = await uow.users.find_one_or_none(id=user_id)
             if not user:
@@ -82,6 +134,19 @@ class TransactionsService:
 
     @staticmethod
     async def delete_transaction(uow: UnitOfWork, transaction_id: int):
+        """
+        Deletes a transaction and updates the user's balance.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            transaction_id (int): The ID of the transaction to be deleted.
+
+        Returns:
+            TransactionResponse: The deleted transaction data.
+
+        Raises:
+            HTTPException: If the transaction or user is not found, or if there is an error during the deletion.
+        """
         async with uow:
             transaction = await uow.transactions.find_one_or_none(id=transaction_id)
             if not transaction:

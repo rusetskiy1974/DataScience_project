@@ -6,7 +6,23 @@ from app.schemas.cars import CarSchemaAdd, CarSchemaUpdate, CarResponse
 
 
 class CarsService:
+    """
+    Service class for managing car operations, including adding, updating, retrieving, and deleting cars.
+    """
     async def add_car(self, uow: UnitOfWork, car_data: CarSchemaAdd) -> int:
+        """
+        Adds a new car to the system.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            car_data (CarSchemaAdd): The data required to add a new car.
+
+        Returns:
+            int: The ID of the newly created car.
+
+        Raises:
+            HTTPException: If the rate or owner is not found, or if a car with the same license plate already exists.
+        """
         async with uow:
             rate = await uow.rates.find_one_or_none(id=car_data.rate_id)
             if not rate:
@@ -25,11 +41,33 @@ class CarsService:
             return car_id
 
     async def get_cars(self, uow: UnitOfWork):
+        """
+        Retrieves a list of all cars.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+
+        Returns:
+            list[Car]: A list of all cars.
+        """
         async with uow:
             cars = await uow.cars.find_all()
             return cars
 
     async def get_car_by_id(self, uow: UnitOfWork, car_id: int) -> CarResponse:
+        """
+        Retrieves a car by its ID.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            car_id (int): The ID of the car to retrieve.
+
+        Returns:
+            CarResponse: The response object containing car details.
+
+        Raises:
+            HTTPException: If the car is not found.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(id=car_id)
             if car is None:
@@ -41,6 +79,20 @@ class CarsService:
     async def update_car(
             self, uow: UnitOfWork, car_id: int, car_data: CarSchemaUpdate
     ) -> CarResponse:
+        """
+        Updates details of an existing car.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            car_id (int): The ID of the car to update.
+            car_data (CarSchemaUpdate): The new data for updating the car.
+
+        Returns:
+            CarResponse: The updated car details.
+
+        Raises:
+            HTTPException: If the car to update is not found, if the rate is not found, or if a car with the updated license plate already exists.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=car_data.license_plate)
             if car:
@@ -64,6 +116,19 @@ class CarsService:
             return CarResponse.from_orm(car)
 
     async def delete_car(self, uow: UnitOfWork, car_id: int) -> CarResponse:
+        """
+        Deletes a car by its ID.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            car_id (int): The ID of the car to delete.
+
+        Returns:
+            CarResponse: The deleted car details.
+
+        Raises:
+            HTTPException: If the car is not found.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(id=car_id)
             if car is None:
@@ -74,6 +139,16 @@ class CarsService:
             return car
 
     async def get_cars_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> list[Car]:
+        """
+        Retrieves all cars owned by a specific user.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            owner_id (int): The ID of the car owner.
+
+        Returns:
+            list[Car]: A list of cars owned by the specified user.
+        """
         async with uow:
             cars = await uow.cars.find_by_owner_id(owner_id)
             return cars

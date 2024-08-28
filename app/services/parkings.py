@@ -10,9 +10,25 @@ from app.core.config import settings
 
 
 class ParkingService:
+    """
+    Service class for managing parking operations, including starting, completing, and retrieving parkings.
+    """
 
     @staticmethod
-    async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:        
+    async def start_parking(uow: UnitOfWork, license_plate: str) -> Parking:
+        """
+        Starts a parking session for a car with the given license plate.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            license_plate (str): The license plate of the car to start parking for.
+
+        Returns:
+            ParkingResponse: The response object containing parking details.
+
+        Raises:
+            HTTPException: If the car is not found or is already parked.
+        """        
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
@@ -47,6 +63,19 @@ class ParkingService:
 
     @staticmethod
     async def complete_parking(uow: UnitOfWork, license_plate: str) -> Parking:
+        """
+        Completes a parking session for a car with the given license plate.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            license_plate (str): The license plate of the car to complete parking for.
+
+        Returns:
+            ParkingResponse: The response object containing updated parking details.
+
+        Raises:
+            HTTPException: If the car or active parking session is not found, or if the user balance is not positive.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:
@@ -82,6 +111,17 @@ class ParkingService:
             
     @staticmethod
     async def get_parkings(uow: UnitOfWork, period: ParkingPeriod, active_only: bool = False) -> list[Parking]:
+        """
+        Retrieves parking records for a specified period.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            period (ParkingPeriod): The period for which to retrieve parkings.
+            active_only (bool): If True, only returns active parkings.
+
+        Returns:
+            list[ParkingResponse]: A list of parking responses for the specified period.
+        """
         async with uow:
             # Отримання списку паркінгів за вказаний період
             if period == ParkingPeriod.ALL:
@@ -100,6 +140,16 @@ class ParkingService:
             return list(parkings)
 
     async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> dict[str, list[ParkingResponse]]:
+        """
+        Retrieves all parking records for a specific car owner, grouped by car license plate.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            owner_id (int): The ID of the car owner.
+
+        Returns:
+            dict[str, list[ParkingResponse]]: A dictionary where keys are license plates and values are lists of parking responses.
+        """
         async with uow:
             parkings_by_owner = {}
             cars = await uow.cars.find_by_owner_id(owner_id)

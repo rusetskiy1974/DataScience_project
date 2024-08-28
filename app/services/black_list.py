@@ -6,8 +6,24 @@ from app.schemas.black_list import BlackListResponse, BlackListSchemaAdd, BlackL
 
 
 class BlackListService:
+    """
+    Service class for managing blacklist operations, including adding, retrieving, and deleting blacklisted cars.
+    """
     @staticmethod
     async def add_black_list(uow: UnitOfWork, black_list_data: BlackListSchemaAdd) -> BlackListResponse:
+        """
+        Adds a car to the blacklist.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            black_list_data (BlackListSchemaAdd): The data required to blacklist a car.
+
+        Returns:
+            BlackListResponse: The response object containing details of the blacklisted car.
+
+        Raises:
+            HTTPException: If the car is not found or is already blacklisted.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=black_list_data.license_plate)
             if car is None:
@@ -30,6 +46,15 @@ class BlackListService:
 
     @staticmethod
     async def get_black_list(uow: UnitOfWork):
+        """
+        Retrieves the list of all blacklisted cars.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+
+        Returns:
+            list[BlackListResponse]: A list of blacklisted car details.
+        """
         async with uow:
             output_data = []
             black_list = await uow.black_list.find_all()
@@ -45,6 +70,16 @@ class BlackListService:
 
     @staticmethod
     async def delete_black_list(uow: UnitOfWork, license_plate: str):
+        """
+        Removes a car from the blacklist.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            license_plate (str): The license plate of the car to remove from the blacklist.
+
+        Raises:
+            HTTPException: If the car is not found or is not blacklisted.
+        """
         async with uow:
             car = await uow.cars.find_one_or_none(license_plate=license_plate)
             if car is None:

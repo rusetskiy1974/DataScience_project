@@ -12,8 +12,20 @@ from app.utils.guard import guard
 
 
 class PaymentsService:
+    """
+    Service class for managing payments, including calculating costs and processing payments.
+    """
     @staticmethod
     async def calculate_cost(parking: Parking) -> float | None:
+        """
+        Calculates the parking cost based on the duration and hourly rate of the car.
+
+        Args:
+            parking (Parking): The parking instance containing start and end time.
+
+        Returns:
+            float | None: The calculated cost or None if the end time is not set.
+        """
         if parking.end_time:
             duration_hours = math.ceil((parking.end_time - parking.start_time).total_seconds() / 3600)
             return duration_hours * parking.car.rate.hourly_rate
@@ -21,6 +33,19 @@ class PaymentsService:
 
     @staticmethod
     async def process_payment(uow: UnitOfWork, parking_id: int) -> int:
+        """
+        Processes a payment for a parking session.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            parking_id (int): The ID of the parking session to process payment for.
+
+        Returns:
+            int: The ID of the created payment.
+
+        Raises:
+            HTTPException: If the car or user is not found, or if there is an error during payment processing.
+        """
         async with (uow):
             parking = await uow.parkings.find_one_or_none(id=parking_id)
 
@@ -56,6 +81,16 @@ class PaymentsService:
 
     @staticmethod
     async def get_all_payments(uow: UnitOfWork, period: PaymentPeriod) -> list[PaymentResponse]:
+        """
+        Retrieves all payments for a specified period.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            period (PaymentPeriod): The period for which to retrieve payments.
+
+        Returns:
+            list[PaymentResponse]: A list of payments for the specified period.
+        """
         async with uow:
             # Отримання списку платежів за вказаний період
             if period == PaymentPeriod.ALL:
@@ -76,6 +111,19 @@ class PaymentsService:
 
     @staticmethod
     async def get_payment_by_id(uow: UnitOfWork, payment_id: int) -> PaymentResponse:
+        """
+        Retrieves a specific payment by its ID.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            payment_id (int): The ID of the payment to retrieve.
+
+        Returns:
+            PaymentResponse: The payment data.
+
+        Raises:
+            HTTPException: If the payment with the specified ID is not found.
+        """
         async with uow:
             # Отримання платежу за його ID, якщо не знайдено - виклик виключення
             payment = await uow.payments.find_by_payment_id(payment_id)
@@ -87,6 +135,16 @@ class PaymentsService:
 
     @staticmethod
     async def get_payments_by_license_plate(uow: UnitOfWork, license_plate: str) -> list[PaymentResponse]:
+        """
+        Retrieves payments for a specific car license plate.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            license_plate (str): The license plate of the car.
+
+        Returns:
+            list[PaymentResponse]: A list of payments associated with the specified license plate.
+        """
         async with uow:
             payments = await uow.payments.find_by_license_plate(license_plate)
 
@@ -94,6 +152,16 @@ class PaymentsService:
 
     @staticmethod
     async def get_my_payments(uow: UnitOfWork, user_id: int) -> dict[str, list[PaymentResponse]]:
+        """
+        Retrieves all payments made by the user, grouped by car license plate.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            user_id (int): The ID of the user whose payments to retrieve.
+
+        Returns:
+            dict[str, list[PaymentResponse]]: A dictionary where keys are license plates and values are lists of payments.
+        """
         async with uow:
             payments_by_car_id = {}
             cars = await uow.cars.find_by_owner_id(user_id)
@@ -105,6 +173,16 @@ class PaymentsService:
 
     @staticmethod
     async def delete_payment(uow: UnitOfWork, payment_id: int) -> None:
+        """
+        Deletes a payment by its ID.
+
+        Args:
+            uow (UnitOfWork): The unit of work instance for database transactions.
+            payment_id (int): The ID of the payment to delete.
+
+        Raises:
+            HTTPException: If there is an error during the deletion process.
+        """
         async with uow:
             payment = await uow.payments.find_by_payment_id(payment_id)
             try:
