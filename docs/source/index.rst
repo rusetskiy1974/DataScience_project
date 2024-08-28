@@ -11,15 +11,9 @@ Welcome to DataScience_project documentation
    :maxdepth: 2
    :caption: Contents:
 
-DataScience_project main
-========================
-.. automodule:: main
-  :members:
-  :undoc-members:
-  :show-inheritance:
-
 DataScience_project Users
 =========================
+
 .. automodule:: app.repositories.users
   :members:
   :undoc-members:
@@ -27,6 +21,7 @@ DataScience_project Users
 
 DataScience_project Transaction
 ===============================
+
 .. automodule:: app.repositories.transactions
   :members:
   :undoc-members:
@@ -34,6 +29,7 @@ DataScience_project Transaction
 
 DataScience_project Rate
 ========================
+
 .. automodule:: app.repositories.rates
   :members:
   :undoc-members:
@@ -41,6 +37,7 @@ DataScience_project Rate
 
 DataScience_project Payment
 ===========================
+
 .. automodule:: app.repositories.payments
   :members:
   :undoc-members:
@@ -48,6 +45,7 @@ DataScience_project Payment
 
 DataScience_project Parking
 ===========================
+
 .. automodule:: app.repositories.parkings
   :members:
   :undoc-members:
@@ -55,6 +53,7 @@ DataScience_project Parking
 
 DataScience_project Car
 =======================
+
 .. automodule:: app.repositories.cars
   :members:
   :undoc-members:
@@ -62,13 +61,15 @@ DataScience_project Car
 
 DataScience_project BlackList
 =============================
-.. automodule:: app.repositories.blackLists
+
+.. automodule:: app.repositories.black_list
   :members:
   :undoc-members:
   :show-inheritance:  
 
 DataScience_project Users
 =========================
+
 .. automodule:: app.routers.users
   :members:
   :undoc-members:
@@ -76,6 +77,7 @@ DataScience_project Users
 
 DataScience_project Transaction
 ===============================
+
 .. automodule:: app.routers.transactions
   :members:
   :undoc-members:
@@ -83,6 +85,7 @@ DataScience_project Transaction
 
 DataScience_project Rate
 ========================
+
 .. automodule:: app.routers.rates
   :members:
   :undoc-members:
@@ -90,6 +93,7 @@ DataScience_project Rate
 
 DataScience_project Payment
 ===========================
+
 .. automodule:: app.routers.payments
   :members:
   :undoc-members:
@@ -97,13 +101,15 @@ DataScience_project Payment
 
 DataScience_project Parking
 ===========================
-.. automodule:: app.routers.parkings
+
+.. automodule:: app.routers.parking
   :members:
   :undoc-members:
   :show-inheritance:
 
 DataScience_project Me
 ======================
+
 .. automodule:: app.routers.me
   :members:
   :undoc-members:
@@ -111,6 +117,7 @@ DataScience_project Me
 
 DataScience_project Checker
 ===========================
+
 .. automodule:: app.routers.checkers
   :members:
   :undoc-members:
@@ -119,6 +126,7 @@ DataScience_project Checker
 
 DataScience_project Car
 ========================
+
 .. automodule:: app.routers.cars
   :members:
   :undoc-members:
@@ -126,13 +134,15 @@ DataScience_project Car
 
 DataScience_project BlackList
 =============================
-.. automodule:: app.routers.blackLists
+
+.. automodule:: app.routers.black_list
   :members:
   :undoc-members:
   :show-inheritance:
 
 DataScience_project Auth
 ========================
+
 .. automodule:: app.routers.auth
   :members:
   :undoc-members:
@@ -140,13 +150,15 @@ DataScience_project Auth
 
 DataScience_project All
 ========================
+
 .. automodule:: app.routers.all
   :members:
   :undoc-members:
   :show-inheritance:
 
-  DataScience_project Users
-=========================
+DataScience_project Users
+===========================
+
 .. automodule:: app.services.users
   :members:
   :undoc-members:
@@ -154,6 +166,7 @@ DataScience_project All
 
 DataScience_project Transaction
 ===============================
+
 .. automodule:: app.services.transactions
   :members:
   :undoc-members:
@@ -161,6 +174,7 @@ DataScience_project Transaction
 
 DataScience_project Rate
 ========================
+
 .. automodule:: app.services.rates
   :members:
   :undoc-members:
@@ -168,6 +182,7 @@ DataScience_project Rate
 
 DataScience_project Payment
 ===========================
+
 .. automodule:: app.services.payments
   :members:
   :undoc-members:
@@ -175,13 +190,15 @@ DataScience_project Payment
 
 DataScience_project Parking
 ===========================
+
 .. automodule:: app.services.parkings
   :members:
   :undoc-members:
-  :show-inheritance
+  :show-inheritance:
 
-  DataScience_project Car
-========================
+DataScience_project Car
+=========================
+
 .. automodule:: app.services.cars
   :members:
   :undoc-members:
@@ -189,13 +206,15 @@ DataScience_project Parking
 
 DataScience_project BlackList
 =============================
-.. automodule:: app.services.blackLists
+
+.. automodule:: app.services.black_list
   :members:
   :undoc-members:
   :show-inheritance:
 
 DataScience_project Auth
 ========================
+
 .. automodule:: app.services.auth
   :members:
   :undoc-members:

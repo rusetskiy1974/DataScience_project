@@ -2,16 +2,16 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/postgres"
     HOST: str = "127.0.0.1"
     PORT: int = 8000
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_HOST: str
-    POSTGRES_PORT: int
-    SECRET_KEY: str
-    ALGORITHM: str
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "postgres"
+    POSTGRES_HOST: str = "localhost"
+    POSTGRES_PORT: int = 5432
+    SECRET_KEY: str = "secret_key" 
+    ALGORITHM: str = "HS256"
     PARKING_HOURLY_RATE: int = 20
     CREDIT_LIMIT: int = 100
 
