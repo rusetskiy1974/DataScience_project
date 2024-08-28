@@ -16,6 +16,16 @@ async def get_transactions(
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(guard.is_admin),
 ):
+    """Retrieve all transactions.
+
+    Args:
+        uow (UOWDep): Dependency for the unit of work.
+        transactions_service (TransactionsService): Service for managing transactions.
+        current_user (User): The current user, must be an admin.
+
+    Returns:
+        list[TransactionResponse]: List of transactions.
+    """
     transactions = await transactions_service.get_all_transactions(uow)
     return transactions
 
@@ -27,6 +37,17 @@ async def get_transaction_by_id(
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(guard.is_admin),
 ):
+    """Retrieve a transaction by its ID.
+
+    Args:
+        transaction_id (int): ID of the transaction.
+        uow (UOWDep): Dependency for the unit of work.
+        transactions_service (TransactionsService): Service for managing transactions.
+        current_user (User): The current user, must be an admin.
+
+    Returns:
+        TransactionResponse: Response containing transaction data.
+    """
     transaction = await transactions_service.get_transaction_by_id(uow, transaction_id)
     return transaction
 
@@ -38,6 +59,17 @@ async def get_transactions_by_user_id(
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(auth_service.get_current_user),
 ) -> list[TransactionResponse]:
+    """Retrieve transactions by user ID.
+
+    Args:
+        uow (UOWDep): Dependency for the unit of work.
+        user_id (int): ID of the user to retrieve transactions for.
+        transactions_service (TransactionsService): Service for managing transactions.
+        current_user (User): The current user, required for authentication.
+
+    Returns:
+        list[TransactionResponse]: List of transactions associated with the specified user.
+    """
     transactions = await transactions_service.get_transactions_by_user_id(uow, user_id)
     # transactions = await uow.transactions.find_by_user_id(user_id=user_id)
     return transactions
@@ -51,6 +83,17 @@ async def add_transaction(
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(auth_service.get_current_user),
 ):
+    """Add a new transaction for the current user.
+
+    Args:
+        uow (UOWDep): Dependency for the unit of work.
+        transaction_data (TransactionSchemaAdd): Data for adding a new transaction.
+        transactions_service (TransactionsService): Service for managing transactions.
+        current_user (User): The current user, required for authentication.
+
+    Returns:
+        TransactionResponse: Response with the newly created transaction data.
+    """
     return await transactions_service.add_transaction(uow, amount = transaction_data.amount, user_id = current_user.id)
 
 
@@ -73,4 +116,12 @@ async def delete_transaction(
         transactions_service: TransactionsService = Depends(),
         current_user: User = Depends(guard.is_admin),
 ):
+    """Delete a transaction by its ID.
+
+    Args:
+        transaction_id (int): ID of the transaction to delete.
+        uow (UOWDep): Dependency for the unit of work.
+        transactions_service (TransactionsService): Service for managing transactions.
+        current_user (User): The current user, must be an admin.
+    """
     await transactions_service.delete_transaction(uow, transaction_id)
