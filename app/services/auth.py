@@ -50,7 +50,7 @@ class AuthService:
 
         Args:
             uow (IUnitOfWork): The unit of work instance for database transactions.
-            **data: The user data for the new user.
+            **data**: The user data for the new user.
 
         Returns:
             User: The newly created user.
