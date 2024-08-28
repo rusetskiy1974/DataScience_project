@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 class CharacterRecognizer:
-    def __init__(self, model_path="app/ds_models/plate_detect_model.tflite"):
+    def __init__(self, model_path="app/ds_models/plate_detect_model_best.tflite"):
         self.interpreter = tf.lite.Interpreter(model_path=model_path)
         self.interpreter.allocate_tensors()
         self.input_details = self.interpreter.get_input_details()
@@ -12,8 +12,8 @@ class CharacterRecognizer:
 
     @staticmethod
     def fix_dimension(img):
-        new_img = np.zeros((28, 28, 3))
-        for i in range(3):
+        new_img = np.zeros((28, 28, 1))
+        for i in range(1):
             new_img[:, :, i] = img
         return new_img
 
@@ -36,7 +36,7 @@ class CharacterRecognizer:
         for ch in chars:  # iterating over the characters
             img_ = cv2.resize(ch, (28, 28), interpolation=cv2.INTER_AREA)
             img = self.fix_dimension(img_)
-            img = img.reshape(28, 28, 3)
+            img = img.reshape(28, 28, 1)
 
             y_ = self.predict_image(img)
 
