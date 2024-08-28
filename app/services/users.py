@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-
+from sqlalchemy import func, select
 from app.schemas.users import UserResponse, UserSchemaAdd, UserSchemaUpdate
 from app.utils.unitofwork import UnitOfWork
 
@@ -8,6 +8,10 @@ class UsersService:
     async def add_user(self, uow: UnitOfWork, user: UserSchemaAdd):
         user_dict = user.model_dump()
         async with uow:
+            count = await uow.users.count()
+            if count == 0:
+                user_dict["is_admin"] = True
+
             if await uow.users.find_one_or_none(email=user_dict["email"]):
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
