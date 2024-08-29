@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from app.models.users import User
 from app.schemas.users import UserResponse, UserWithCarsResponse
-from app.schemas.parking import ParkingResponse
+from app.schemas.parking import ParkingResponse, ParkingLiteResponse
 from app.schemas.payment import PaymentResponse
 from app.services.users import UsersService
 from app.services.cars import CarsService
@@ -39,7 +39,7 @@ async def get_me(
     return {"user": user, "cars": cars}
 
 
-@router.get("/parkings", response_model=dict[str, list[ParkingResponse]], status_code=status.HTTP_200_OK)
+@router.get("/parkings", response_model=dict[str, list[ParkingLiteResponse]], status_code=status.HTTP_200_OK)
 async def get_my_parkings(
         uow: UOWDep,
         parking_service: ParkingService = Depends(),
