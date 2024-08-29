@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from fastapi import HTTPException
 from app.models.parking import Parking
-from app.schemas.parking import ParkingResponse, ParkingPeriod
+from app.schemas.parking import ParkingResponse, ParkingPeriod, ParkingLiteResponse
 from app.schemas.payment import PaymentSchemaAdd
 from app.services.payments import PaymentsService
 from app.utils.guard import guard
@@ -139,7 +139,7 @@ class ParkingService:
 
             return list(parkings)
 
-    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> dict[str, list[ParkingResponse]]:
+    async def get_parkings_by_owner_id(self, uow: UnitOfWork, owner_id: int) -> dict[str, list[ParkingLiteResponse]]:
         """
         Retrieves all parking records for a specific car owner, grouped by car license plate.
 

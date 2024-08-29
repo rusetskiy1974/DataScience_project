@@ -20,6 +20,17 @@ class ParkingResponse(BaseModel):
         from_attributes = True
 
 
+class ParkingLiteResponse(BaseModel):
+    id: conint(ge=1)
+    car_id: int
+    is_active: bool
+    start_time: datetime
+    end_time: datetime | None
+
+    class Config:
+        from_attributes = True
+
+
 class ParkingPeriod(Enum):
     WEEK = "тиждень"
     MONTH = "місяць"
